@@ -11,7 +11,6 @@
         InProgress,
         Done,
         Accepted,
-        Rejected,
-        Incompletes
+        Rejected
     }
 }

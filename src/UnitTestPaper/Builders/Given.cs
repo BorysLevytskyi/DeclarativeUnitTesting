@@ -8,7 +8,9 @@ namespace Tests.Builders
     {
         public static UserStory UserStory(Action<UserStoryBuilder> setup)
         {
-            return null;
+            var builder = new UserStoryBuilder();
+            setup(builder);
+            return builder.Build();
         }
     }
 }
