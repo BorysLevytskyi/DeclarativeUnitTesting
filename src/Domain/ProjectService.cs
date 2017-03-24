@@ -2,4 +2,8 @@
 
 namespace Domain
 {
+    public class SprintService
+    {
+
+    }
 }

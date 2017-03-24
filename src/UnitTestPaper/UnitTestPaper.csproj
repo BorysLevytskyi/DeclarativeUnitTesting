@@ -35,8 +35,10 @@
   <ItemGroup>
     <Compile Include="Builders\Given.cs" />
     <Compile Include="Builders\Identity.cs" />
+    <Compile Include="Builders\SprintBuilder.cs" />
     <Compile Include="Builders\UserStoryBuilder.cs" />
-    <Compile Include="InBacklogUserStoryTest.cs" />
+    <Compile Include="SprintTests.cs" />
+    <Compile Include="UserStoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=4.18.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a">

@@ -12,5 +12,12 @@ namespace Tests.Builders
             setup(builder);
             return builder.Build();
         }
+
+        public static Sprint Sprint(Action<SprintBuilder> setup)
+        {
+            var builder = new SprintBuilder();
+            setup(builder);
+            return builder.Build();
+        }
     }
 }

@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="Entities\Assignee.cs" />
     <Compile Include="Entities\InvalidUserStoryStateException.cs" />
+    <Compile Include="Entities\Sprint.cs" />
     <Compile Include="Entities\Storypoint.cs" />
     <Compile Include="Entities\UserStory.cs" />
     <Compile Include="Entities\UserStoryState.cs" />
