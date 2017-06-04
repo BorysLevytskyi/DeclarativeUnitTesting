@@ -1,12 +1,18 @@
 # Declarative Unit Testing
+TODO: Write Preface 
+TODO: Write about importance of clean understandable unit tets
+TODO: describe example domain - Scrum
 
 ## Create Entities using fluent syntax
+TODO: Describe the a fluent way of generating entities using domain language
+TODO: why not autofixture?
 ```C#
 
 // User Story test
 [Test]
 public void Given_story_in_backlog_when_scheduling_estimated_story_should_move_to_scheduled_state()
 {
+    // Specify only important parts to the test case. Everything else comes from Default template
     var userStory = Given.UserStory(s => s.InBacklog().Estimated());
 
     int sprintId = 1;
@@ -38,6 +44,9 @@ public void Should_get_total_estimate_and_per_assignee()
 ```
 
 ### Fluent Entity Generator
+TODO: write about facade class to all generators
+- at any point entity generated is alwats correct thanks to default templates
+
 ```C#
 public static class Given
 {
@@ -65,6 +74,7 @@ public static class Given
 }
 ```
 ### Builders
+TODO: Write about builders
 ```C#
 public class UserStoryBuilder
 {
@@ -128,6 +138,7 @@ public class UserStoryBuilder
 }
 ```
 ### Default temaplates
+TODO: Write about default templates
 ```C#
 public class DefaultTemplate 
 {
@@ -144,6 +155,7 @@ public class DefaultTemplate
 ```
 
 ## Use Specs and Fixtures to setup mocks
+TODO: write about specs
 Test method looks nice and clean and is not cluttered with mocks creation
 
 ```C#
@@ -172,7 +184,7 @@ public class SprintServiceTest : SprintServiceSpec
 ```
 
 ### Fixtures
-
+TODO: write about fixtures
 ```C#
 public class SprintServiceFixture
 {
@@ -207,6 +219,7 @@ public class SprintServiceFixture
 }
 ```
 ### Spec files
+TODO: write about specs
 ```C#
 public class SprintServiceSpec 
 {
@@ -236,3 +249,6 @@ public class SprintServiceSpec
     }
 }
 ```
+## More adavanced scenarios
+TODO: Auto-setup specs
+TODO: Custom default templates per fixture
