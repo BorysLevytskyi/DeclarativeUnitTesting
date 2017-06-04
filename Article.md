@@ -137,8 +137,12 @@ public class UserStoryBuilder
     }
 }
 ```
-### Default temaplates
-Since the builder itself only provides domain language to express state of the entities, there has someone that will use it to create correct entities. This is Default Template's job. Since `Given` class is a facade for all builders - it can apply default template for each entity constructor method. What is good about using Actions and fluent interface is that actions can be combined with using `+` operator in C# that creates [MulticastDelegate](https://msdn.microsoft.com/en-us/library/system.multicastdelegate(v=vs.110).aspx) action as a result. 
+### Default Templates
+Ideally every unit test should setup those aspects of entity which are direcly tied to it's test case. For example Test Case might not care what name does current user have, but from the code standpoint user must have a name or null reference exception will be throw. To setup rquired entity attributes in each test case with add more clutter to the test *and more importantly* it will prevent reader from distinguishing which attributes are important to this particular test case and which attributes are set just to make code work. 
+
+Correct generic entity must be created by generator even in case when no attributes are specified trough fluent interface. It is important that this generic entity is always the same and predictable. Developers must understand which is default state of generic entity before they start to specify important attributes. Fo example every user story that is created is always unassigned and unestimated and has some generic title.
+
+Since the builder itself only provides domain language to express state of the entities, there has to be someone that will use it to create generic entities. This is `DefaultTemplate`'s job. Since `Given` class is a facade for all builders - it can apply default template for each entity constructor method. What is good about using Actions and fluent interface is that actions can be combined with using `+` operator in C# that creates [MulticastDelegate](https://msdn.microsoft.com/en-us/library/system.multicastdelegate(v=vs.110).aspx) action as a result. 
 
 So instead of calling `build(builder)` we can call `(DefaultTemplate.User + build)(builder)`. I added `StartWith` extension method that essentially does the same.
 
@@ -167,7 +171,7 @@ public class DefaultTemplate
 }
 ```
 
-## Use Specs and Fixtures to setup mocks
+## Working With Dependencies: Specs and Fixtures to Setup Mocks
 TODO: write about specs
 Test method looks nice and clean and is not cluttered with mocks creation
 
