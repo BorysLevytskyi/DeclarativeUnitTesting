@@ -5,7 +5,8 @@ TODO: describe example domain - Scrum
 
 ## Create Entities using fluent syntax
 TODO: Describe the a fluent way of generating entities using domain language
-TODO: why not autofixture?
+- why not autofixture?
+
 ```C#
 
 // User Story test
@@ -75,42 +76,44 @@ public static class Given
 ```
 ### Builders
 TODO: Write about builders
+- Builder methods are not per-proprety methods. It is domain language.
+
 ```C#
 public class UserStoryBuilder
 {
-    private readonly UserStoryData _storyData = new UserStoryData();
+    private readonly UserStory _story = new UserStory();
 
     public UserStoryBuilder NotStarted()
     {
-        _storyData.State = UserStoryState.InBacklog;
+        _story.State = UserStoryState.InBacklog;
         return this;
     }
 
     public UserStoryBuilder AssignedTo(Assignee assignee)
     {
-        _storyData.Assignee = assignee;
+        _story.Assignee = assignee;
         return this;
     }
-
+  
     public UserStoryBuilder AssignedTo(string name, string email = null)
     {
         return AssignedTo(new Assignee(Identity.Next(), name, email ?? $"{name}@domain.com"));
     }
 
-    public UserStoryBuilder Unassigned()
+    public UserStoryBuilder Assigned()
     {
-        _storyData.Assignee = null;
-        return this;
+        return AssignedTo("Bob");
     }
 
-    public UserStory Build()
+    public UserStoryBuilder Unassigned()
     {
-        return UserStory.Reconstitute(_storyData);
+        _story.Assignee = null;
+        return this;
     }
 
     public UserStoryBuilder Estimated(StoryPoint storyPoints)
     {
-        _storyData.Estimate = storyPoints;
+        _story.Estimate = storyPoints;
         return this;
     }
 
@@ -121,19 +124,19 @@ public class UserStoryBuilder
 
     public UserStoryBuilder Unestimated()
     {
-        _storyData.Estimate = null;
+        _story.Estimate = null;
         return this;
-    }
-
-    public UserStoryBuilder Assigned()
-    {
-        return AssignedTo("Bob");
     }
 
     public UserStoryBuilder InBacklog()
     {
-        _storyData.State = UserStoryState.InBacklog;
+        _story.State = UserStoryState.InBacklog;
         return this;
+    }
+    
+    public UserStory Build()
+    {
+        return _story;
     }
 }
 ```
@@ -171,7 +174,7 @@ public class DefaultTemplate
 }
 ```
 
-## Working With Dependencies: Specs and Fixtures to Setup Mocks
+## Mocking Dependencies: Specs and Fixtures to Setup Mocks
 TODO: write about specs
 Test method looks nice and clean and is not cluttered with mocks creation
 
