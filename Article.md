@@ -138,7 +138,20 @@ public class UserStoryBuilder
 }
 ```
 ### Default temaplates
-TODO: Write about default templates
+Since the builder itself only provides domain language to express state of the entities, there has someone that will use it to create correct entities. This is Default Template's job. Since `Given` class is a facade for all builders - it can apply default template for each entity constructor method. What is good about using Actions and fluent interface is that actions can be combined with using `+` operator in C# that creates [MulticastDelegate](https://msdn.microsoft.com/en-us/library/system.multicastdelegate(v=vs.110).aspx) action as a result. 
+
+So instead of calling `build(builder)` we can call `(DefaultTemplate.User + build)(builder)`. I added `StartWith` extension method that essentially does the same.
+
+```C#
+public static User User(Action<UserBuilder> build = null)
+{
+    var userBuilder = new UserBuilder();
+    build.StartWith(DefaultTemplate.User)(build);
+    return user;
+}
+```
+I usually have one class called `DefaultTemplate` with static methods for every entity that use builder to declare default template for each entity. Thus every developer know if he calls `Given.User()` he will receive user that is declared in a default template class. 
+
 ```C#
 public class DefaultTemplate 
 {
