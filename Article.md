@@ -153,7 +153,7 @@ So instead of calling `build(builder)` we can call `(DefaultTemplate.User + buil
 public static User User(Action<UserBuilder> build = null)
 {
     var userBuilder = new UserBuilder();
-    build.StartWith(DefaultTemplate.User)(build);
+    build.StartWith(DefaultTemplate.User)(builder);
     return user;
 }
 ```
