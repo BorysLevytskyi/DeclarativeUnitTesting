@@ -19,5 +19,13 @@ namespace Tests.Builders
             setup(builder);
             return builder.Build();
         }
+
+
+        public static User User(Action<UserBuilder> userBuilder)
+        {
+            var user = new User();
+            userBuilder(new UserBuilder(user));
+            return user;
+        }
     }
 }

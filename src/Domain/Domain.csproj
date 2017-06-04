@@ -41,7 +41,9 @@
     <Compile Include="Entities\UserStoryState.cs" />
     <Compile Include="Entities\UserTask.cs" />
     <Compile Include="Exceptions\UserStoryNotEstimatedException.cs" />
-    <Compile Include="ProjectService.cs" />
+    <Compile Include="SprintService.cs" />
+    <Compile Include="SprintStartedEvent.cs" />
+    <Compile Include="Entities\User.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

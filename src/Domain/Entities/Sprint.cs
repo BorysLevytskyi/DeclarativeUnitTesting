@@ -6,8 +6,9 @@ namespace Domain.Entities
 {
     public class Sprint
     {
-        public Sprint(IEnumerable<UserStory> userStories, DateTime startDate, DateTime endDate)
+        public Sprint(int id, IEnumerable<UserStory> userStories, DateTime startDate, DateTime endDate)
         {
+            Id = id;
             UserStories = userStories.ToList();
             StartDate = startDate;
             EndDate = endDate;
@@ -20,6 +21,8 @@ namespace Domain.Entities
         public IReadOnlyList<UserStory> UserStories { get; }
 
         public StoryPoint TotalEstimate => new StoryPoint(UserStories.Where(us => us.Estimate.HasValue).Sum(us => us.Estimate.Value.Value));
+
+        public int Id { get; private set; }
 
         public void Start()
         {

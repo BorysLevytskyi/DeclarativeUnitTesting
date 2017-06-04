@@ -1,5 +1,29 @@
 ﻿<Properties StartupConfiguration="{66DB8E49-0F28-45C6-937A-3F7E359BA627}|Unit Tests">
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="src Status">
+    <Files>
+      <File FileName="UnitTestPaper/Builders/Given.cs" Line="29" Column="6" />
+      <File FileName="UnitTestPaper/UserStoryTests.cs" Line="27" Column="10" />
+      <File FileName="UnitTestPaper/SprintTests.cs" Line="15" Column="15" />
+      <File FileName="UnitTestPaper/Builders/UserBuilder.cs" Line="17" Column="30" />
+      <File FileName="src Status" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="UnitTestPaper" expanded="True">
+            <Node name="Domain" expanded="True">
+              <Node name="Entities" expanded="True" />
+              <Node name="Exceptions" expanded="True" />
+            </Node>
+            <Node name="UnitTestPaper" expanded="True">
+              <Node name="Builders" expanded="True" />
+              <Node name="SprintTests.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

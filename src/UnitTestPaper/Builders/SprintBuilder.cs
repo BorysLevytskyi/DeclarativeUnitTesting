@@ -17,7 +17,7 @@ namespace Tests.Builders
 
         public Sprint Build()
         {
-            return new Sprint(_userStories, DateTime.Now, DateTime.Now);
+            return new Sprint(Identity.Next(), _userStories, DateTime.Now, DateTime.Now);
         }
     }
 }
