@@ -1,7 +1,7 @@
 # Declarative Unit Testing
-TODO: Write Preface 
-TODO: Write about importance of clean understandable unit tets
-TODO: describe example domain - Scrum
+- TODO: Write Preface 
+- TODO: Write about importance of clean understandable unit tets
+- TODO: describe example domain - Scrum
 
 ## Create Entities using fluent syntax
 TODO: Describe the a fluent way of generating entities using domain language
@@ -46,9 +46,13 @@ public void Should_get_total_estimate_and_per_assignee()
 ```
 
 ### Fluent Entity Generator
-TODO: write about facade class to all generators
-- at any point entity generated is alwats correct thanks to default templates
+I like [Fluent Assertions](http://fluentassertions.com/) library and how much it makes tests much better, cleaner and readable. A while back I thought of a way to use the same fluent syntax for expressing entities involved in the test case. 
 
+The idea is to have single facade class called `Given` that provides a set of method for creating entities from a domain model. Each method accepts `Action<EntityBuilder>` which is used for expressing entity state. This facade use two components to do it's job
+- Entity Builders
+- Default Templates
+
+Example of `Given` facade class for Agile Scrum domain
 ```C#
 public static class Given
 {
@@ -189,8 +193,10 @@ public class DefaultTemplate
 ```
 
 ## Mocking Dependencies: Specs and Fixtures to Setup Mocks
-TODO: write about specs
-Test method looks nice and clean and is not cluttered with mocks creation
+There are cases when just creating entities trough fluent interface is not enough for removing all the boilerplate code from the unit test and that is when you need so setup dependencies and mock inderect inputs and indirect outputs. Setting up mocks right in the test cases adds more clutter and hinders clarity of a unit test. So this boilerplate code has to go somewhere. And this somewhere is what I call a `Spec` base class from which each test class is inherited. It's job is to do:
+- Provide you vocabulary for expressing your givens trough `Fixture` (TODO: maybe spec is a fixture)
+- Setup all mocks with entities your created as your givens
+- Capture and provide access to indirect outputs crated by your mocks
 
 ```C#
 [TestFixture]
@@ -218,7 +224,49 @@ public class SprintServiceTest : SprintServiceSpec
 ```
 
 ### Fixtures
-TODO: write about fixtures
+The Fixture is essential is a datamodel for your tests. For example from looking at `SprintServiceFixture` we can tell that test cases, it is involved in, include a single Sprint and User who does something with it. Fixtures can be different for each test class. 
+```C#
+public class SprintServiceFixture
+{
+    public Sprint Sprint { get; private set; }
+
+    public User User { get; private set; }
+
+    public IList<object> PublishedEvents { get; } = new List<object>();
+
+    // Builder code ommitted
+```
+
+There is also `PublishedEvents` property in this fixture which is a place where all indirect outputs go. In current test case indirect outputs are Sprint Events that are published `IEventPublisher` interface. `Spec` class will configure publisher mock to put all events into this collection.
+
+#### Fixture Builders
+Fixture also has a `Builder` that provides access to fluent interface for building objects in the fixture. Internally it uses `Given` for building entities. You use it to "hydrate" propery objects in the fixture. 
+```
+public Builder ExistingSprint(Action<SprintBuilder> build = null)
+{
+    _fixture.Sprint = Given.Sprint(build);
+    return this;
+}
+```
+Builder's language is even more specific than `Given`'s lanuage. So in this particular test cases Builder's method for creating a Sprint is called `ExistingSprint` to express this given more accurately.
+
+What's cool about templating trough concatenating `Action` object is that builder can stack it's own fixture-specific templates on top of the Default Template
+```
+public Builder User(Action<UserBuilder> build) 
+{
+    _fixture.User = Given.User(build.StartWith(UserTemplate));
+    return this;
+}    
+
+privsate void UserTemplate(UserBuilder user)
+{
+    // By default users have access to the given sprint
+    user.HasAccessTo(_fixture.Sprint);
+}
+```
+In exmaple above I don't want to always say that User has access to the given Sprint in every test cases so I just make it part of my Fixture Builder's default template
+
+Example for SprintServiceFixture
 ```C#
 public class SprintServiceFixture
 {
@@ -237,23 +285,29 @@ public class SprintServiceFixture
             _fixture = fixture;
         }
 
-
-        public Builder User(Action<UserBuilder> build) 
-        {
-            _fixture.User = Given.User(build);
-            return this;
-        }
-
         public Builder ExistingSprint(Action<SprintBuilder> build = null)
         {
             _fixture.Sprint = Given.Sprint(build);
             return this;
         }
+
+        public Builder User(Action<UserBuilder> build) 
+        {
+            _fixture.User = Given.User(build.StartWith(UserTemplate));
+            return this;
+        }    
+
+        privsate void UserTemplate(UserBuilder user)
+        {
+            // By default users have access to the given sprint
+            user.HasAccessTo(_fixture.Sprint);
+        }
     }
 }
 ```
-### Spec files
-TODO: write about specs
+### Spec Base Class
+`Spec` class is a place where it all comes together. Every test case it's own or shared spec file. Spec provides access to it's Fixture Builder trough `Given()` method. It also has `CreateSut()` method that will setup all the indirect input mocks to return entities set up in Fixture and also setups indirect output mocks to route all outputs back to Fixture's properties.
+
 ```C#
 public class SprintServiceSpec 
 {
@@ -279,7 +333,10 @@ public class SprintServiceSpec
 
     protected SprintService CreateSut() 
     {
-        return new SprintService(SprintRepoMock.Object, UserRepoMock.Object, null, EventPublisherMock.Object);
+        return new SprintService(
+                SprintRepoMock.Object, 
+                serRepoMock.Object, 
+                EventPublisherMock.Object);
     }
 }
 ```
