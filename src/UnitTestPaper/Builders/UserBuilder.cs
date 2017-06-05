@@ -12,9 +12,10 @@ namespace Tests.Builders
             _user = user;
         }
 
-        public void Named(string name)
+        public UserBuilder Named(string name)
         {
             _user.Name = name;
+            return this;
         }
     }
 
