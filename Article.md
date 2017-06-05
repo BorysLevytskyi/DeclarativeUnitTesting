@@ -9,6 +9,8 @@ Over the past 10 years working as a software developer I spent 8 or so years wor
 
 Usually unit test suffer from having a lot of boilerplate code that is there to create test entities in desired state and then connecting them to mock or fake objects. Another downside of having such code right there is the test as it impossible to say which properties of the test entity is actually important for this particular test case and which attributes are set to make the code work. 
 
+**Test cases must be as pure as possible** expressing only if what the most essential and important for this particular tests case. This means that this boilerplate code has to go somewhere else where it can be reused and reduced to a minimum.
+
 A while back I thought of having a way to generate generic entity, for example Customer, by having very simple facade class. Like 'Create.User()' method which will create generic and correct `User` entity. And I also would like a way to "override" any attributes I deem important for every particular test case. Something like:
 ```
 Create.User(u => u.Named("Bob").Retired(2.DaysAgo()))
@@ -16,6 +18,15 @@ Create.User(u => u.Named("Bob").Retired(2.DaysAgo()))
 So I came with this facade class with factory methods that accept `Action<EntityBuilder>`. Every Entity has it's own builder to provide a **domain** language of expressing it's entity attributes and state.
 
 In this article I'm gonna use Agile Scrum domain having Sprints, UserStories, Users as an example. 
+
+### Stability
+
+Generating always correct entities by your builders make tests more stable. I've seen situations where developers set only properties of an entity that were used in particular piece of code leaving all other properties to be null. Later when that components were changed to work with additional properties on that entity - all tests began to fail due to `NullReferenceException` because that property wasn't set up. Developer then had do go back to all those tests and set that property in each unit test. 
+
+Having boilerplate code removed from the test cases themselves also adds stability to unit tests. That boilerplate code is then shared between tests and is usually easy to change without affecting the test cases themselves. When tests are written in declarative behavior-driven style changes in infrastructural boilerplate code are much less likely to affect them. As an example [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) language can be used. It is the most ultimate case of pushing all the boilerplate code out. What I'm using in my unit tests looks somewhat like `Gherkin` but is aimed at writing unit test, while `Gherkin` is used in writing integration tests. No doubt it was inspiration for my approach to unit testing. 
+
+### Why not use AutoFixture
+AutoFixture is a good tool for generating entities "hydrated" with random attributes but the problem is in this randomness. I want my Entities to be created in always correct state. And this correct state might mean that certain group of properties can be setup with values that agree with each other. You can do this with AutoFixture customizations but when your start doing it you now understand that you just using AutoFixture to kickoff generation and doing all the important staff in your customization classes. Beside I want to have a fluent interface of chainable methods that are **not** per-property based. I'll tell you why later in this article.
 
 ## Create Entities using fluent syntax
 I'm a big fan of Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to be sound the same as just plain english explanation of the test case.
@@ -91,6 +102,7 @@ public static class Given
 }
 ```
 ### Builders
+
 A Builder object provides fluent entity creation interface as a series of chainable methods using *domain language*. This means that builder should not contain a chainable method per entity property but rather method per entity aspect. Builder should not provide interface where object might be created in the inconsistent state. 
 
 Fo example if starting of the `Sprint` means setting up `StartedAt` and `StartedByUserId` properties then respective `SprintBuilder` should provide single 
