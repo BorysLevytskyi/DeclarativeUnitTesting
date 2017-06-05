@@ -1,15 +1,26 @@
 # Declarative Unit Testing
-- TODO: Write Preface 
-- TODO: Write about importance of clean understandable unit tets
-- TODO: describe example domain - Scrum
+Unit Tests can provide great value in software development but only if done right. And by right I mean that unit test should be written following these rules
+- **Concise** - a test have to be understandable and clearly convey what behavior does it test and what aspect is the most important in every particular test case  
+- **Stable** - unit test must withstand inner implementation refactorings of the component. If change in **how** component does it's job (without change of the behavior itself) requires unit test to change than there is nothing that will say that component is not broken and still does it's jub good.
+
+Over the past 10 years working as a software developer I spent 8 or so years working with unit tests and I've seen which unit tests which help development and provide a great value and those which made it even harder. In this article I'd like to share with you my current approach with the hope it will be helpful to you as it was for me.
+
+### How to Make Tests Concise
+
+Usually unit test suffer from having a lot of boilerplate code that is there to create test entities in desired state and then connecting them to mock or fake objects. Another downside of having such code right there is the test as it impossible to say which properties of the test entity is actually important for this particular test case and which attributes are set to make the code work. 
+
+A while back I thought of having a way to generate generic entity, for example Customer, by having very simple facade class. Like 'Create.User()' method which will create generic and correct `User` entity. And I also would like a way to "override" any attributes I deem important for every particular test case. Something like:
+```
+Create.User(u => u.Named("Bob").Retired(2.DaysAgo()))
+```
+So I came with this facade class with factory methods that accept `Action<EntityBuilder>`. Every Entity has it's own builder to provide a **domain** language of expressing it's entity attributes and state.
+
+In this article I'm gonna use Agile Scrum domain having Sprints, UserStories, Users as an example. 
 
 ## Create Entities using fluent syntax
-TODO: Describe the a fluent way of generating entities using domain language
-- why not autofixture?
-- why it is important to always have consistent object
+I'm a big fan of Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to be sound the same as just plain english explanation of the test case.
 
 ```C#
-
 // User Story test
 [Test]
 public void Given_story_in_backlog_when_scheduling_estimated_story_should_move_to_scheduled_state()
@@ -163,7 +174,7 @@ Ideally every unit test should setup those aspects of entity which are direcly t
 
 Correct generic entity must be created by `Given` generator even in case when no attributes are specified trough fluent interface. It is important that this generic entity is always the same and predictable. Developers must understand which is default state of generic entity before they start to specify important attributes. Fo example every user story that is created is always unassigned and unestimated and has some generic title.
 
-Since the builder itself only provides domain language to express state of the entities, there has to be someone that will use it to create generic entities. This is `DefaultTemplate`'s job. `Given` class, which is a facade for all builders, applies default template for each entity constructor method before executing it. What is good about using Actions and fluent interface is that actions can be combined with using `+` operator in C# that creates [MulticastDelegate](https://msdn.microsoft.com/en-us/library/system.multicastdelegate(v=vs.110).aspx) action as a result. Invokation of this new `Action` delegate will invoke those two method one after another. 
+Since the builder itself only provides domain language to express state of the entities, there has to be someone that will use it to create generic entities. This is `DefaultTemplate`'s job. `Given` class, which is a facade for all builders, applies default template for each entity constructor method before executing it. What is good about using Actions and fluent interface is that actions can be combined with using `+` operator in C# that creates [MulticastDelegate](https://msdn.microsoft.com/en-us/library/system.multicastdelegate(v=vs.110).aspx) action as a result. Invocation of this new `Action` delegate will invoke those two method one after another. 
 
 So instead of calling `build(builder)` we can call `(DefaultTemplate.User + build)(builder)`. I added `StartWith` extension method that essentially does the same.
 
@@ -193,7 +204,7 @@ public class DefaultTemplate
 ```
 
 ## Mocking Dependencies: Specs and Fixtures to Setup Mocks
-There are cases when just creating entities trough fluent interface is not enough for removing all the boilerplate code from the unit test and that is when you need so setup dependencies and mock inderect inputs and indirect outputs. Setting up mocks right in the test cases adds more clutter and hinders clarity of a unit test. So this boilerplate code has to go somewhere. And this somewhere is what I call a `Spec` base class from which each test class is inherited. It's job is to do:
+There are cases when just creating entities trough fluent interface is not enough for removing all the boilerplate code from the unit test and that is when you need so setup dependencies and mock indirect inputs and indirect outputs. Setting up mocks right in the test cases adds more clutter and hinders clarity of a unit test. So this boilerplate code has to go somewhere. And this somewhere is what I call a `Spec` base class from which each test class is inherited. It's job is to do:
 - Provide you vocabulary for expressing your givens trough `Fixture` (TODO: maybe spec is a fixture)
 - Setup all mocks with entities your created as your givens
 - Capture and provide access to indirect outputs crated by your mocks
@@ -224,7 +235,7 @@ public class SprintServiceTest : SprintServiceSpec
 ```
 
 ### Fixtures
-The Fixture is essential is a datamodel for your tests. For example from looking at `SprintServiceFixture` we can tell that test cases, it is involved in, include a single Sprint and User who does something with it. Fixtures can be different for each test class. 
+The Fixture is essential is a data model for your tests. For example from looking at `SprintServiceFixture` we can tell that test cases, it is involved in, include a single Sprint and User who does something with it. Fixtures can be different for each test class. 
 ```C#
 public class SprintServiceFixture
 {
@@ -234,7 +245,7 @@ public class SprintServiceFixture
 
     public IList<object> PublishedEvents { get; } = new List<object>();
 
-    // Builder code ommitted
+    // Builder code omitted
 ```
 
 There is also `PublishedEvents` property in this fixture which is a place where all indirect outputs go. In current test case indirect outputs are Sprint Events that are published `IEventPublisher` interface. `Spec` class will configure publisher mock to put all events into this collection.
@@ -248,9 +259,10 @@ public Builder ExistingSprint(Action<SprintBuilder> build = null)
     return this;
 }
 ```
-Builder's language is even more specific than `Given`'s lanuage. So in this particular test cases Builder's method for creating a Sprint is called `ExistingSprint` to express this given more accurately.
+Builder's language is even more specific than `Given`'s language. So in this particular test cases Builder's method for creating a Sprint is called `ExistingSprint` to express this given more accurately.
 
-What's cool about templating trough concatenating `Action` object is that builder can stack it's own fixture-specific templates on top of the Default Template
+What's cool about templating trough concatenating `Action` object is that builder can stack it's own fixture-specific templates on top of the Default Template which is again shows how convenient it is to use `Action` based interface to do manipulations with builders.
+
 ```
 public Builder User(Action<UserBuilder> build) 
 {
@@ -258,13 +270,13 @@ public Builder User(Action<UserBuilder> build)
     return this;
 }    
 
-privsate void UserTemplate(UserBuilder user)
+private void UserTemplate(UserBuilder user)
 {
     // By default users have access to the given sprint
     user.HasAccessTo(_fixture.Sprint);
 }
 ```
-In exmaple above I don't want to always say that User has access to the given Sprint in every test cases so I just make it part of my Fixture Builder's default template
+In example above I don't want to always say that User has access to the given Sprint in every test cases so I just make it part of my Fixture Builder's default template
 
 Example for SprintServiceFixture
 ```C#
@@ -340,6 +352,6 @@ public class SprintServiceSpec
     }
 }
 ```
-## More adavanced scenarios
+## More advanced scenarios
 TODO: Auto-setup specs
 TODO: Custom default templates per fixture
