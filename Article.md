@@ -6,6 +6,7 @@ TODO: describe example domain - Scrum
 ## Create Entities using fluent syntax
 TODO: Describe the a fluent way of generating entities using domain language
 - why not autofixture?
+- why it is important to always have consistent object
 
 ```C#
 
@@ -75,9 +76,22 @@ public static class Given
 }
 ```
 ### Builders
-TODO: Write about builders
-- Builder methods are not per-proprety methods. It is domain language.
+A Builder object provides fluent entity creation interface as a series of chainable methods using *domain language*. This means that builder should not contain a chainable method per entity property but rather method per entity aspect. Builder should not provide interface where object might be created in the inconsistent state. 
 
+Fo example if starting of the `Sprint` means setting up `StartedAt` and `StartedByUserId` properties then respective `SprintBuilder` should provide single 
+
+`Given.Sprint(s => s.Started(date, user))` 
+
+instead of 
+
+`Given.Sprint(s => s.StartedAt(date).StartedByUserId(userId))`. 
+
+It is important that builder uses **domain language** instead of just provide the chainable methods that would simple correspond to each property of the entity. You can add another overload for this chainable method to always set start date to be `DateTime.Now` for test cases where actual date doesn't matter but it is important that it is always set if this sprint is considered to be started - `Given.Sprint(s => s.Started(user)`
+
+Builders define your vocabulary of expressing your entities state. It is also important that builder does internal validation of each state modification of an entity to make sure it is always in the consistent state. This means that part of the business logic has to be implemented in builders. This still pays off very well as project grows.
+
+
+Example of UserStoryBuilder
 ```C#
 public class UserStoryBuilder
 {
