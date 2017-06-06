@@ -13,12 +13,12 @@ Usually unit tests suffer from having a lot of boilerplate code that is there ma
 
 Having to write boilerplate code in each test *significantly reduces coverage* because developers just don't want to write a lot of unit tests in this way doing repetitive work over and over.
 
-A while back I thought of having a way to generate generic entities, for example Customer, by having very simple facade class. Like `Create.User()` method which will create generic but always correct `User` entity with all properties set with valid values. And then I'd like a way to "override" any attributes I deem important for every particular test case on the spot. Something like:
+A while back I thought of having a way to generate generic entities, for example `User`, by having very simple facade class. Like `var user = Create.User()` method which will create generic `User` entity with all fields set up to arbitrary (within correct boundaries) values. Then I'd "override" any attributes I deem important for every particular test case. Something like:
 ```
 var genericUser = Create.User();
 var retiredBob = Create.User(u => u.Named("Bob").Retired(2.DaysAgo()))
 ```
-So I came up with this facade class with factory methods that accept `Action<EntityBuilder>`. Every Entity has it's own builder to provide a **domain** language of expressing it's attributes and state.
+I came with this facade class with factory methods for each domain entity that accept `Action<EntityBuilder>`. Every Entity has it's own builder to provide a **domain** language of expressing it's attributes and state.
 
 In this article I'm gonna use Agile Scrum domain having Sprints, UserStories, Users as an example. 
 
