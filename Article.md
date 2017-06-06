@@ -1,29 +1,29 @@
 # Declarative Unit Testing
-Unit Tests can provide great value in software development but only if done right. And by right I mean that unit test should be written following these rules
-- **Concise** - a test have to be understandable and clearly convey what behavior does it test and what aspect is the most important in every particular test case  
+Unit Tests can provide great value in software development but only if done right. And by right I mean that unit test should be written following these rules:
+- **Concise** - a test have to be understandable and clearly convey what behavior does it test and what aspect of it is the most important in a particular test case  
 - **Stable** - unit test must withstand inner implementation refactorings of the component. If change in **how** component does it's job (without change of the behavior itself) requires unit test to change than there is nothing that will say that component is not broken and still does it's jub good.
 
-Over the past 10 years working as a software developer I spent 8 or so years working with unit tests and I've seen which unit tests which help development and provide a great value and those which made it even harder. In this article I'd like to share with you my current approach with the hope it will be helpful to you as it was for me.
+Over the past 10 years working as a software developer I spent 8 or so years working with unit tests and I've seen unit tests which helped development and provided a great value and those which made it even harder. In this article I'd like to share with you my current approach to unit testing and I hope it will provide at least some value to you.
 
 ### How to Make Tests Concise
 
 Usually unit test suffer from having a lot of boilerplate code that is there to create test entities in desired state and then connecting them to mock or fake objects. Another downside of having such code right there is the test as it impossible to say which properties of the test entity is actually important for this particular test case and which attributes are set to make the code work. 
 
-**Test cases must be as pure as possible** expressing only if what the most essential and important for this particular tests case. This means that this boilerplate code has to go somewhere else where it can be reused and reduced to a minimum.
+**Test cases must be as pure as possible** expressing only if what the most essential and important in each case. This means that this boilerplate code has to go somewhere else where it can be reused and reduced to a minimum.
 
-A while back I thought of having a way to generate generic entity, for example Customer, by having very simple facade class. Like 'Create.User()' method which will create generic and correct `User` entity. And I also would like a way to "override" any attributes I deem important for every particular test case. Something like:
+A while back I thought of having a way to generate domain entities, for example `User`, by having very simple facade class. Somthing liek `var user = Create.User()` method which will create generic `User` entity with all fields set up to arbitrary (within correct boundaries) values. Then I'd "override" any attributes I deem important for every particular test case. Something like:
 ```
 Create.User(u => u.Named("Bob").Retired(2.DaysAgo()))
 ```
-So I came with this facade class with factory methods that accept `Action<EntityBuilder>`. Every Entity has it's own builder to provide a **domain** language of expressing it's entity attributes and state.
+I came with this facade class with factory methods for each domain entity that accept `Action<EntityBuilder>`. Every Entity has it's own builder to provide a **domain** language of expressing it's attributes and state.
 
 In this article I'm gonna use Agile Scrum domain having Sprints, UserStories, Users as an example. 
 
 ### Stability
 
-Generating always correct entities by your builders make tests more stable. I've seen situations where developers set only properties of an entity that were used in particular piece of code leaving all other properties to be null. Later when that components were changed to work with additional properties on that entity - all tests began to fail due to `NullReferenceException` because that property wasn't set up. Developer then had do go back to all those tests and set that property in each unit test. 
+Generating always correct entities by your builders make tests more stable. I've seen situations where developers set only properties of an entity that were used in particular piece of code leaving all other properties to be null. Later when that components were changed to work with additional properties on that entity - all tests began to fail due to `NullReferenceException` being throw by production code because that property wasn't set up. Developer then had do go back to all those tests and set that property in each unit test. 
 
-Having boilerplate code removed from the test cases themselves also adds stability to unit tests. That boilerplate code is then shared between tests and is usually easy to change without affecting the test cases themselves. When tests are written in declarative behavior-driven style changes in infrastructural boilerplate code are much less likely to affect them. As an example [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) language can be used. It is the most ultimate case of pushing all the boilerplate code out. What I'm using in my unit tests looks somewhat like `Gherkin` but is aimed at writing unit test, while `Gherkin` is used in writing integration tests. No doubt it was inspiration for my approach to unit testing. 
+Having boilerplate code removed from the test cases themselves also adds stability to unit tests. That infrastructural code is then shared between tests and is usually easy to change without affecting the test cases themselves. When tests are written in declarative behavior-driven style, changes in infrastructural boilerplate code are much less likely to affect them. As an example [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) language can be used. It is the most ultimate case of pushing all of the boilerplate code out. What I'm using in my unit tests looks somewhat like `Gherkin` but is aimed at writing unit test, while `Gherkin` is used in writing integration tests. No doubt it was inspiration for my approach to unit testing. 
 
 ### Why not use AutoFixture
 AutoFixture is a good tool for generating entities "hydrated" with random attributes but the problem is in this randomness. I want my Entities to be created in always correct state. And this correct state might mean that certain group of properties can be setup with values that agree with each other. You can do this with AutoFixture customizations but when your start doing it you now understand that you just using AutoFixture to kickoff generation and doing all the important staff in your customization classes. Beside I want to have a fluent interface of chainable methods that are **not** per-property based. I'll tell you why later in this article.
