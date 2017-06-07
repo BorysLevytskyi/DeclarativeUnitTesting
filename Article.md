@@ -119,7 +119,7 @@ instead of
 
 This is because you may choose (knowingly or unknowingly) not to set `StartedByUserId` property and would be left with an object in an inconsistent state. 
 
-It is important that the builder use **domain language** instead of just providind the chainable methods that would simply correspond to each property of the entity. You can add another overload for this chainable method to always set start date to be `DateTime.Now` for test cases where actual date doesn't matter but it is important that it is always set if this sprint is considered to be started - `Given.Sprint(s => s.Started(user)`
+It is important that the builder use **domain language** instead of just providing the chainable methods that would simply correspond to each property of the entity. You can add another overload for this chainable method to always set start date to be `DateTime.Now` for test cases where actual date doesn't matter but it is important that it is always set if this sprint is considered to be started - `Given.Sprint(s => s.Started(user)`
 
 Builders define your vocabulary of expressing your entities state. It is also important that builder does internal validation of each state modification of an entity to make sure it is always in the consistent state. Of course to make that happen a part of the business logic has to be implemented in builders. This still pays off very well as project grows. 
 
