@@ -7,7 +7,7 @@ Over the past ten years working as a software developer I spent eight or so year
 
 ### How to Make Tests Concise
 
-Usually unit tests suffer from having a lot of boilerplate code that is there mainly to create test entity objects, get them to the desired state, and then connect them to mock or fake objects. Another downside of having such piping code right there in the test is that it makes it hard to see which attributes of the test entity are actually important for this particular test case and which attributes are set to make the code work. Far more often than not in my work I encountered unit tests where it was really hard to figure out which behavior was being tested. This made maintainining them a nightmare. Usually when such tests fail developers try to do as little as possible to make them green again, adding hacks and short cuts making those tests even worse until eventually the team just gives up and ignores them.
+Usually unit tests suffer from having a lot of boilerplate code that is there mainly to create test entity objects, get them to the desired state, and then connect them to mock or fake objects. Another downside of having such piping code right there in the test is that it makes it hard to see which attributes of the test entity are actually important for this particular test case and which attributes are set to make the code work. Far more often than not in my work I encountered unit tests where it was really hard to figure out which behavior was being tested. This made maintaining them a nightmare. Usually when such tests fail developers try to do as little as possible to make them green again, adding hacks and short cuts making those tests even worse until eventually the team just gives up and ignores them.
 
 **Test cases must be as pure as possible** containing only code that expresses the test case itself and it's most important aspects. Like which attributes of the entity are really important here. For example if I test the `Retire` method on a user, which can only be done upon active users, this means that my test case should say that the user is in `Active` state, leaving all properties like `Name`, `Address` and `DateOfBirth` and other attributes that constitute a valid user to be specified somewhere else as it is not important which name, or address the user has in this particular test case. But it is really important for this test case that the user is an active user. This means that this boilerplate code has to go somewhere else where it can be reused and reduced to a minimum. 
 
@@ -384,5 +384,10 @@ public class SprintServiceSpec
     }
 }
 ```
-## Summary
-TODO: Write
+## In Conclusion
+Bottom line 
+* Push your any boilerplate code out of the test case
+* Use domain language to express preconditions and expectations
+* Use correct and consistent entities in tests the same way they are using in production scenarios
+
+Code should communicate business rules. Same goes for unit tests. If application code is messy and primitive-obsessed then it is important to get it's unit tests to do that. So the tests then could become a foundation for a successful refactoring.
