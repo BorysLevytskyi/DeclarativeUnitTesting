@@ -1,38 +1,38 @@
 # Declarative Unit Testing
-Unit Tests can provide great value in software development but only if done right. And by right I mean that unit test should be written according to these two principles
-1. **Concise** - a test have to be understandable and clearly convey what behavior does it test and what particular aspect is of it in each of the test cases
-2. **Stable** - unit test must withstand inner implementation refactorings of the component. If change in **how** component does it's job (without change of the behavior itself) requires unit test to change than there is nothing that will say that component is not broken and still does it's jub good.
+Unit Tests can provide great value in software development but only if done right. And by right I mean that unit tests should be written according to these two principles.
+1. **Concise** - a unit test has to be understandable and clearly convey what aspect of what behavior is being tested in each case.
+2. **Stable** - a unit test must withstand inner implementation refactorings of the component. If a change in **how** the component does it's job (without changing the behavior itself) requires the unit test to change, then there is nothing that will say that component is not broken and still does it's job.
 
-Over the past 10 years working as a software developer I spent 8 or so years working with unit tests and I've seen those which help development and provide a great value and those which made it even harder. In this article I'd like to share with you my current approach with the hope it will be helpful to you as it was for me.
+Over the past ten years working as a software developer I spent eight or so years working with unit tests and I've seen those which help development and provide a great value and those which made it even harder. In this article I'd like to share with you my current approach with the hope it will be as helpful to you as it was to me.
 
 ### How to Make Tests Concise
 
-Usually unit tests suffer from having a lot of boilerplate code that is there mainly to create test entity object, get them in desired state and then connect them to mock or fake objects. Another downside of having such piping code right there is the test is it makes it hard to see which attributes of the test entity is actually important for this particular test case and which attributes are set to make the code work. Far more often than not in my work and saw unit tests where it was really hard to figure out whic behavior those tests were testing which made maintainining of them a nightmare. Usually when such tests are failing developers try to do as little as possible to make them green again adding hacks and short cuts making those tests even worth until eventually someone just gives up and ignores them.
+Usually unit tests suffer from having a lot of boilerplate code that is there mainly to create test entity objects, get them to the desired state, and then connect them to mock or fake objects. Another downside of having such piping code right there in the test is that it makes it hard to see which attributes of the test entity are actually important for this particular test case and which attributes are set to make the code work. Far more often than not in my work I encountered unit tests where it was really hard to figure out which behavior was being tested. This made maintainining them a nightmare. Usually when such tests fail developers try to do as little as possible to make them green again, adding hacks and short cuts making those tests even worse until eventually the team just gives up and ignores them.
 
-**Test cases must be as pure as possible** containing only code that expresses test case itself and it's most important aspects. Like which attributes of the entity is really important here. For example if I test `Retire` method on the user which can only be done upon active users this means that my test cases should say that user is in `Active` state, leaving all properties like `Name`, `Address` and `DateOfBirth` and other attributes that constitute a valid user to be specified somewhere else as it is not important which name, or address does user have in this particular test case. But it is really important for this test case that user is an active user. This means that this boilerplate code has to go somewhere else where it can be reused and reduced to a minimum. 
+**Test cases must be as pure as possible** containing only code that expresses the test case itself and it's most important aspects. Like which attributes of the entity are really important here. For example if I test the `Retire` method on a user, which can only be done upon active users, this means that my test case should say that the user is in `Active` state, leaving all properties like `Name`, `Address` and `DateOfBirth` and other attributes that constitute a valid user to be specified somewhere else as it is not important which name, or address the user has in this particular test case. But it is really important for this test case that the user is an active user. This means that this boilerplate code has to go somewhere else where it can be reused and reduced to a minimum. 
 
-Having to write boilerplate code in each test *significantly reduces coverage* because developers just don't want to write a lot of unit tests in this way doing repetitive work over and over.
+Having to write boilerplate code in each test *significantly reduces coverage* because developers just don't want to write a lot of unit tests in this way involving repetitive work over and over.
 
-A while back I thought of having a way to generate generic entities, for example `User`, by having very simple facade class. Like `var user = Create.User()` method which will create generic `User` entity with all fields set up to arbitrary (within correct boundaries) values. Then I'd "override" any attributes I deem important for every particular test case. Something like:
+A while back I thought of having a way to generate generic entities, for example `User`, by having a very simple facade class. For example `var user = Create.User()` should create a generic `User` entity with all fields set up to arbitrary values (within correct boundaries). Then I'd "override" those attributes I deem important for every particular test case. Something like:
 ```
 var genericUser = Create.User();
 var retiredBob = Create.User(u => u.Named("Bob").Retired(2.DaysAgo()))
 ```
-I came with this facade class with factory methods for each domain entity that accept `Action<EntityBuilder>`. Every Entity has it's own builder to provide a **domain** language of expressing it's attributes and state.
+I came up with this facade class with factory methods for each domain entity that accepts `Action<EntityBuilder>`. Every entity has it's own builder to provide a **domain** language of expressing it's attributes and state.
 
-In this article I'm gonna use Agile Scrum domain having Sprints, UserStories, Users as an example. 
+In this article I'll use the Agile Scrum domain with Sprints, UserStories, and Users as an example. 
 
 ### Stability
 
-Generating always correct entities by your builders make tests more stable. I've seen situations where developers set only properties of an entity that were used in particular piece of code leaving all other properties to be null, since they weren't read or set in the sut component. Later when that class was changed to work with additional properties on that entity - all tests began to fail due to `NullReferenceException` being thrown because that property wasn't set up in tests. Developer then had do go back to all those tests and set that property in each unit test. 
+Generating entities with builders that are always correct makes your tests more stable. I've seen situations where developers set only those properties of an entity which were used in a particular piece of code, leaving all other properties to be null, since they weren't read or set in the sut component. Later when that class was changed to work with additional properties of that entity, all tests began to fail with a `NullReferenceException` being thrown because that property wasn't set up in tests. The team then had do go back to all those tests and set that property in each unit test. 
 
-Having boilerplate code removed from the test cases themselves also adds stability to unit tests. Boilerplate code is put in one place and shared between tests and is usually easy to change without affecting the test cases themselves. When tests are written in declarative behavior-driven style changes in infrastructural code are much less likely to affect them. [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) language is a good example. It is the most ultimate case of pushing all the boilerplate code out. Do the degree that Gherkin tests can be run in any platform that supports it like .NET, Java or Javascript. What I'm using in my unit tests looks somewhat like `Gherkin` but is aimed at writing  unit tests, while `Gherkin` is used in writing integration tests. No doubt it was inspiration for my approach to unit testing. 
+Having boilerplate code removed from the test cases themselves also adds stability to the unit tests. Boilerplate code is put in one place and shared between tests and is usually easy to change without affecting the test cases themselves. When tests are written in a declarative, behavior-driven style, changes in infrastructure code are much less likely to affect them. The [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) language is a good example. It is the ultimate case of pushing all the boilerplate code out. To the degree that Gherkin tests can be run on any platform that supports it, like .NET, Java or Javascript. What I'm doing in my unit tests looks somewhat like `Gherkin` but is aimed at writing unit tests, while `Gherkin` is used in writing integration tests. No doubt it was an inspiration for my approach to unit testing. 
 
 ### Why not use AutoFixture
-AutoFixture is a good tool for generating entities "hydrated" with random attributes but the problem is in this randomness. I want my Entities to be created in always correct state. And this correct state might mean that certain group of properties can be setup with values that agree with each other. You can do this with AutoFixture customizations but once your start doing it you now understand that you just using AutoFixture to kickoff generation and doing all the important staff in your customization code. Beside I want to have a fluent interface of chainable methods that are **not** per-property based. I'll tell you why later in this article.
+AutoFixture is a good tool for generating entities "hydrated" with random attributes but the problem is in this randomness. I want my Entities to always be created in a correct state. This correct state might mean that a certain group of properties must be setup with values that agree with each other. You can do this with AutoFixture customizations, but once you start doing it you will understand that you're just using AutoFixture to kickoff generation and doing all the important stuff in your customization code. Besides, I want to have a fluent interface of chainable methods that are **not** per-property based. I'll tell you why later in this article.
 
 ## Create Entities using fluent syntax
-I'm a big fan of Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to be sound the same as just plain english explanation of the test case.
+I'm a big fan of the Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to sound the same as a plain english explanation of the test case.
 
 ```C#
 // User Story test
@@ -71,13 +71,13 @@ public void Should_get_total_estimate_and_per_assignee()
 ```
 
 ### Fluent Entity Generator
-I like [Fluent Assertions](http://fluentassertions.com/) library and how it makes tests much better, cleaner and readable. A while back I thought of a way to use the same fluent syntax for expressing entities involved in the test case. 
+I like the [Fluent Assertions](http://fluentassertions.com/) library and how it makes tests much better, cleaner and readable. A while back I thought of a way to use the same fluent syntax for expressing entities involved in a test case. 
 
-The idea was to have single facade class called `Given` that provides a set of method for creating entities from a domain model. Each method accepts `Action<EntityBuilder>` which is used for expressing entity state. This facade use two components to do it's job
+The idea was to have single facade class called `Given` that provides a set of methods for creating entities from a domain model. Each method accepts an `Action<EntityBuilder>` which is used for expressing entity state. This facade uses two components to do it's job
 - Entity Builders
 - Default Templates
 
-Example of `Given` facade class for Agile Scrum domain
+An example of the `Given` facade class for the Agile Scrum domain
 ```C#
 public static class Given
 {
@@ -107,9 +107,9 @@ public static class Given
 
 ### Builders
 
-A Builder object provides fluent entity creation interface as a series of chainable methods using *domain language*. This means that builder should not contain a chainable method per entity property but rather method per entity aspect. It should not provide interface where object might be created in the inconsistent state. 
+A Builder object provides a fluent entity creation interface as a series of chainable methods using the *domain language*. This does not mean that the builder should contain a chainable method per entity property, but rather per entity aspect. It should not provide an interface that would allow the object to be created in an inconsistent state. 
 
-Fo example if starting of the `Sprint` means setting up `StartedAt` and `StartedByUserId` properties then respective `SprintBuilder` should provide single 
+Fo example if starting the `Sprint` means assigning `StartedAt` and `StartedByUserId` properties then the `SprintBuilder` should provide a single method 
 
 `Given.Sprint(s => s.Started(date, user))` 
 
@@ -117,9 +117,9 @@ instead of
 
 `Given.Sprint(s => s.StartedAt(date).StartedByUserId(userId))`. 
 
-because you may choose (knowingly or unknowingly) not to set `StartedByUserId` property and now you have object in the inconsistent state. 
+This is because you may choose (knowingly or unknowingly) not to set `StartedByUserId` property and would be left with an object in an inconsistent state. 
 
-It is important that builder uses **domain language** instead of just provide the chainable methods that would simple correspond to each property of the entity. You can add another overload for this chainable method to always set start date to be `DateTime.Now` for test cases where actual date doesn't matter but it is important that it is always set if this sprint is considered to be started - `Given.Sprint(s => s.Started(user)`
+It is important that the builder use **domain language** instead of just providind the chainable methods that would simply correspond to each property of the entity. You can add another overload for this chainable method to always set start date to be `DateTime.Now` for test cases where actual date doesn't matter but it is important that it is always set if this sprint is considered to be started - `Given.Sprint(s => s.Started(user)`
 
 Builders define your vocabulary of expressing your entities state. It is also important that builder does internal validation of each state modification of an entity to make sure it is always in the consistent state. Of course to make that happen a part of the business logic has to be implemented in builders. This still pays off very well as project grows. 
 
