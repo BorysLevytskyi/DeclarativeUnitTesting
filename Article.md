@@ -32,7 +32,7 @@ Having boilerplate code removed from the test cases themselves also adds stabili
 AutoFixture is a good tool for generating entities "hydrated" with random attributes but the problem is in this randomness. I want my Entities to always be created in a correct state. This correct state might mean that a certain group of properties must be setup with values that agree with each other. You can do this with AutoFixture customizations, but once you start doing it you will understand that you're just using AutoFixture to kickoff generation and doing all the important stuff in your customization code. Besides, I want to have a fluent interface of chainable methods that are **not** per-property based. I'll tell you why later in this article.
 
 ## Create Entities using fluent syntax
-I'm a big fan of the Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to sound the same as a plain english explanation of the test case.
+I'm a big fan of the Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to sound the same as a plain English explanation of the test case.
 
 ```C#
 // User Story test
@@ -390,4 +390,4 @@ Bottom line
 * Use domain language to express preconditions and expectations.
 * Use correct and consistent entities in tests the same way they are used in production scenarios.
 
-Code should communicate business rules. The same goes for unit tests. If application code is messy and primitive-obsessed you can beging fixing it with unit tests that use domain language. The tests then can become a foundation for a successful refactoring.
+Code should communicate business rules. The same goes for unit tests. If application code is messy and primitive-obsessed you can begin fixing it with unit tests that use domain language. The tests then can become a foundation for a successful refactoring.
