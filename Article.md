@@ -29,10 +29,10 @@ Generating entities with builders that are always correct makes your tests more 
 Having boilerplate code removed from the test cases themselves also adds stability to the unit tests. Boilerplate code is put in one place and shared between tests and is usually easy to change without affecting the test cases themselves. When tests are written in a declarative, behavior-driven style, changes in infrastructure code are much less likely to affect them. The [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) language is a good example. It is the ultimate case of pushing all the boilerplate code out. To the degree that Gherkin tests can be run on any platform that supports it, like .NET, Java or Javascript. What I'm doing in my unit tests looks somewhat like `Gherkin` but is aimed at writing unit tests, while `Gherkin` is used in writing integration tests. No doubt it was an inspiration for my approach to unit testing. 
 
 ### Why not use AutoFixture
-AutoFixture is a good tool for generating entities "hydrated" with random attributes but the problem is in this randomness. I want my Entities to always be created in a correct state. This correct state might mean that a certain group of properties must be setup with values that agree with each other. You can do this with AutoFixture customizations, but once you start doing it you will understand that you're just using AutoFixture to kickoff generation and doing all the important stuff in your customization code. Besides, I want to have a fluent interface of chainable methods that are **not** per-property based. I'll tell you why later in this article.
+AutoFixture is a good tool for generating entities "hydrated" with random attributes but the problem is in this randomness. I want my Entities to always be created in a correct state. This correct state might mean that a certain group of properties must be set up with values that agree with each other. You can do this with AutoFixture customizations, but once you start doing it you will understand that you're just using AutoFixture to kickoff generation and doing all the important stuff in your customization code. Besides, I want to have a fluent interface of chainable methods that are **not** per-property based. I'll tell you why later in this article.
 
 ## Create Entities using fluent syntax
-I'm a big fan of the Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to sound the same as a plain english explanation of the test case.
+I'm a big fan of the Given-When-Then approach of structuring unit tests so I've been calling my facade class `Given` instead of `Create` in recent projects. I like my unit tests to sound the same as a plain English explanation of the test case.
 
 ```C#
 // User Story test
@@ -109,7 +109,7 @@ public static class Given
 
 A Builder object provides a fluent entity creation interface as a series of chainable methods using the *domain language*. This does not mean that the builder should contain a chainable method per entity property, but rather per entity aspect. It should not provide an interface that would allow the object to be created in an inconsistent state. 
 
-Fo example if starting the `Sprint` means assigning `StartedAt` and `StartedByUserId` properties then the `SprintBuilder` should provide a single method 
+For example, if starting the `Sprint` means assigning `StartedAt` and `StartedByUserId` properties then the `SprintBuilder` should provide a single method 
 
 `Given.Sprint(s => s.Started(date, user))` 
 
@@ -117,22 +117,22 @@ instead of
 
 `Given.Sprint(s => s.StartedAt(date).StartedByUserId(userId))`. 
 
-This is because you may choose (knowingly or unknowingly) not to set `StartedByUserId` property and would be left with an object in an inconsistent state. 
+This is because you might choose (knowingly or unknowingly) not to set the `StartedByUserId` property and be left with an object in an inconsistent state. 
 
-It is important that the builder use **domain language** instead of just providing the chainable methods that would simply correspond to each property of the entity. You can add another overload for this chainable method to always set start date to be `DateTime.Now` for test cases where actual date doesn't matter but it is important that it is always set if this sprint is considered to be started - `Given.Sprint(s => s.Started(user)`
+It is important that the builder use **domain language** instead of just providing the chainable methods that would simply correspond to each property of the entity. You can add another overload for this chainable method to always set start date to be `DateTime.Now` for test cases where the actual date doesn't matter, but it is important that it always gets set if this sprint is considered to be started - `Given.Sprint(s => s.Started(user))`
 
-Builders define your vocabulary of expressing your entities state. It is also important that builder does internal validation of each state modification of an entity to make sure it is always in the consistent state. Of course to make that happen a part of the business logic has to be implemented in builders. This still pays off very well as project grows. 
+Builders define your vocabulary for expressing the state of your entities. It is also important for the builder to do internal validation of each state modification of an entity to make sure it is always in a consistent state. Of course to make that happen, a part of the business logic has to be implemented in builders. This still pays off very well as the project grows. 
 
-Builder's domain-specific vocabulary also server important role of communicating of business rules especially when the code being test is doing bad job of it by being messy and suffering primitive obsession. 
+The builder's domain-specific vocabulary also serves the important role of communicating business rules, especially when the code being test is doing a bad job of it by being messy and suffering primitive obsession. 
 
 #### Legacy Projects
-*Before refactoring production code towards clarity* it is safer and easier first to refactor unit tests to use declarative style to express business rules after that you will have advantage of:
-1. Better understanding of what and why production code does
-2. Having reliable and maintainable tests suite for it 
+*Before refactoring production code towards clarity* it is safer and easier first to refactor the unit tests to use a declarative style and to express business rules. After that you will have the advantage of:
+1. A better understanding of what the production code does and why.
+2. A reliable and maintainable suite of tests. 
 
-so you can start refactoring of actual production code and you'll know that your tet are actually helping you. I've seen like test cases that were 30-50 lines method became 10 liners (including "space" lines). Much easier to understand and change.
+Now you can start refactoring the actual production code and you'll know that your tests are actually helping you. I've seen test cases that were 30-50 lines reduced to ten liners (including "space" lines). Much easier to understand and change.
 
-Example of UserStoryBuilder
+UserStoryBuilder Example
 ```C#
 public class UserStoryBuilder
 {
@@ -196,13 +196,13 @@ public class UserStoryBuilder
 }
 ```
 ### Default Templates
-As I mentioned earlier - ideally every unit test should setup those aspects of entity which are directly tied to it's test case. For example a particular test case might not care what name does current user have, but from the code standpoint user must have a name or `NullReferenceException` will be thrown. Setting up all required entity attributes in each test case will add more clutter to the test *and more importantly* it will prevent reader from distinguishing which attributes are important to this particular test case and which attributes are set just to make code work. 
+As I mentioned earlier, ideally every unit test should set up those aspects of an entity which are directly tied to the test case. For example a particular test case might not care what name the current user has, but from the code standpoint a user must have a name or a `NullReferenceException` will be thrown. Setting up all the required entity attributes in each test case adds more clutter to the test, *and more importantly* it prevents the reader from distinguishing which attributes are important to this particular test case and which attributes were set just to make the code work. 
 
-In my case always correct generic entity is created by `Given` facade class. It is important that this generic entity is always the same and in some agreed upon state. Developers must understand which is `default` state of this entity before they start to override important attributes. For example every user story that is created is always unassigned and unestimated and has some generic title.
+In my tests the correct generic entity is always created by a `Given` facade class. It is important that a generic entity is always the same and in some agreed upon state. Developers must understand what the `default` state of an entity is before they start to override important attributes. For example every user story that is created is always unassigned and unestimated and has some generic title.
 
-Since the builder itself only provides domain language to express state of the entities, there has to be someone that will use it to create default  entities. This is `DefaultTemplate`'s job. `Given` class, which is a facade for all builders, applies default template for each entity constructor method before executing it. What is good about using Actions and fluent interface is that actions can be combined with using `+` operator in C# that creates [MulticastDelegate](https://msdn.microsoft.com/en-us/library/system.multicastdelegate(v=vs.110).aspx) action as a result. Invocation of this new `Action` delegate will invoke those two methods one after another. 
+Since the builder itself only provides domain language to express the state of the entities, there has to be some way to use it to create default entities. This is `DefaultTemplate`'s job. The `Given` class, which is a facade for all builders, applies the default template for each entity constructor method before executing it. What is good about using Actions and the fluent interface is that actions can be combined with using `+` operator in C#. This results in a [MulticastDelegate](https://msdn.microsoft.com/en-us/library/system.multicastdelegate(v=vs.110).aspx) action. Invocation of this new `Action` delegate will invoke those two methods, one after another. 
 
-So instead of calling `build(builder)` we can call `(DefaultTemplate.User + build)(builder)`. I added `StartWith` extension method that essentially does the same but looks nicer.
+So instead of calling `build(builder)`, we can call `(DefaultTemplate.User + build)(builder)`. I added a `StartWith` extension method that essentially does the same but looks nicer.
 
 ```C#
 public static User User(Action<UserBuilder> build = null)
@@ -212,7 +212,7 @@ public static User User(Action<UserBuilder> build = null)
     return user;
 }
 ```
-I usually have one class called `DefaultTemplate` with static methods for every entity that use builder to declare default template for each entity. Thus every developer know if he calls `Given.User()` he will receive user that is declared in a default template class. 
+I usually have a single `DefaultTemplate` class that groups together static methods for every entity that uses the builder. Thus every developer knows if he calls for example `Given.User()`, he will receive a user that is declared in the default template class. 
 
 ```C#
 public class DefaultTemplate 
@@ -233,11 +233,11 @@ public class DefaultTemplate
 }
 ```
 
-## Mocking Dependencies: Specs and Fixtures to Setup Mocks
-There are cases when just creating entities trough fluent interface is not enough for removing all the boilerplate code from the unit test and that is when you need so setup dependencies and mock indirect inputs and indirect outputs. Setting up mocks right in the test cases adds more clutter and hinders clarity of a unit test. So this boilerplate code has to go somewhere. And this somewhere is what I call a `Spec` base class from which each test class is inherited. It's job is to do:
-- Provide you vocabulary for expressing your givens trough `Fixture` object.
-- Setup all mocks with entities your created as your givens
-- Capture and provide access to indirect outputs crated by your mocks
+## Mocking Dependencies: Specs and Fixtures to set up Mocks
+There are cases when just creating entities through the fluent interface is not enough for removing all the boilerplate code from the unit test.  That is when you need to set up dependencies and mock indirect inputs and indirect outputs. Setting up mocks right in the test case adds more clutter and hinders the clarity of the unit test. This boilerplate code has to go somewhere. This somewhere is what I call a `Spec` base class, from which each test class is inherited. It's job is to:
+- Provide vocabulary for expressing your givens through a `Fixture` object.
+- Set up all mocks with entities you created as your givens.
+- Capture and provide access to indirect outputs created by your mocks.
 
 ```C#
 [TestFixture]
@@ -265,7 +265,7 @@ public class SprintServiceTest : SprintServiceSpec
 ```
 
 ### Fixtures
-The Fixture is essentially a data model for your tests. For example from looking at `SprintServiceFixture` we can tell that test cases, it is involved in, include a single Sprint and User who does something with it. Fixtures can be different for each test class. 
+The Fixture is essentially a data model for your tests. For example, looking at `SprintServiceFixture` we can tell that the test cases it is involved in include a single Sprint and a User who does something with it. Fixtures can be different for each test case. 
 
 ```C#
 public class SprintServiceFixture
@@ -280,10 +280,10 @@ public class SprintServiceFixture
 }
 ```
 
-There is also `PublishedEvents` property in this fixture which is a place where all indirect outputs of this test go. In current test case indirect outputs are Sprint Events that are published `IEventPublisher` interface. `Spec` class will configure publisher mock to put all events into this collection.
+The `PublishedEvents` property in this fixture is where all indirect outputs of this test go. In the example test case indirect outputs are Sprint Events that are published with the `IEventPublisher` interface. The `Spec` class will configure a publisher mock to put all events into this collection.
 
 #### Fixture Builders
-Fixture also has a `Builder` that provides access to fluent interface for building objects in the fixture. Internally it uses `Given` for building entities. You use it to "hydrate" property objects in the fixture. 
+The fixture also has a `Builder` that provides access to a fluent interface for building objects. Internally it uses `Given` for building entities. It is used to "hydrate" property objects in the fixture. 
 ```
 public Builder ExistingSprint(Action<SprintBuilder> build = null)
 {
@@ -291,9 +291,9 @@ public Builder ExistingSprint(Action<SprintBuilder> build = null)
     return this;
 }
 ```
-Builder's language is even more specific than `Given`'s language. So in this particular test cases Builder's method for creating a Sprint is called `ExistingSprint` to express this given more accurately.
+The builder's language is even more specific than `Given`'s language. In this particular test case Builder's method for creating a Sprint is called `ExistingSprint` to express this given more accurately.
 
-What's cool about templating trough concatenating `Action` object is that builder can stack it's own fixture-specific templates on top of the Default Template which is again shows how convenient it is to use `Action` based interface to do manipulations with builders.
+What is cool about templating through concatenating `Action` objects is that the builder can stack it's own fixture-specific templates on top of the Default Template.  This again shows how convenient it is to use an `Action` based interface to perform manipulations with builders.
 
 ```
 public Builder User(Action<UserBuilder> build) 
@@ -308,7 +308,7 @@ private void UserTemplate(UserBuilder user)
     user.HasAccessTo(_fixture.Sprint);
 }
 ```
-In example above I don't want to always say that User has access to the given Sprint in every test cases so I just make it part of my Fixture Builder's default template
+In the example above I don't want to have to say that the User has access to the given Sprint every time I write a test case, so I just make it part of my Fixture Builder's default template.
 
 Example for SprintServiceFixture
 ```C#
@@ -350,7 +350,7 @@ public class SprintServiceFixture
 }
 ```
 ### Spec Base Class
-`Spec` class is a place where it all comes together. Every test case it's own or shared spec file. Spec provides access to it's Fixture Builder trough `Given()` method. It also has `CreateSut()` method that will setup all the indirect input mocks to return entities set up in Fixture and also setups indirect output mocks to route all outputs back to Fixture's properties.
+The `Spec` class is the place where it all comes together. Every test case has it's own or a shared spec file. The Spec class provides access to it's Fixture Builder through the `Given()` method. It also has a `CreateSut()` method that will set up all the indirect input mocks to return the entities set up in the Fixture.  It also sets up indirect output mocks to route all outputs back to the Fixture's properties.
 
 ```C#
 public class SprintServiceSpec 
@@ -386,8 +386,8 @@ public class SprintServiceSpec
 ```
 ## In Conclusion
 Bottom line 
-* Push your any boilerplate code out of the test case
-* Use domain language to express preconditions and expectations
-* Use correct and consistent entities in tests the same way they are using in production scenarios
+* Push all boilerplate code out of your test cases.
+* Use domain language to express preconditions and expectations.
+* Use correct and consistent entities in tests the same way they are used in production scenarios.
 
-Code should communicate business rules. Same goes for unit tests. If application code is messy and primitive-obsessed then it is important to get it's unit tests to do that. So the tests then could become a foundation for a successful refactoring.
+Code should communicate business rules. The same goes for unit tests. If application code is messy and primitive-obsessed you can begin fixing it with unit tests that use domain language. The tests then can become a foundation for a successful refactoring.
