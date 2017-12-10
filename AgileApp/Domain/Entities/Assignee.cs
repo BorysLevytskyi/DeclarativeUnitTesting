@@ -1,9 +1,9 @@
-﻿namespace AgileApp.Domain.Entities
+namespace AgileApp.Domain.Entities
 {
     public class Assignee
     {
 
-        public Assignee(int userId, string name, string email)
+        public Assignee (int userId, string name, string email)
         {
             UserId = userId;
             Name = name;
@@ -13,7 +13,7 @@
         public int UserId { get; }
 
         public string Name { get; }
-        
+
         public string Email { get; }
     }
 }

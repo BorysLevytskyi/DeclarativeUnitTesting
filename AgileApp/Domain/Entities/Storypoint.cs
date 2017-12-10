@@ -1,10 +1,10 @@
-﻿namespace Domain.Entities
+namespace AgileApp.Domain.Entities
 {
     public struct StoryPoint
     {
         public int Value { get; }
 
-        public StoryPoint(int value)
+        public StoryPoint (int value)
         {
             Value = value;
         }
@@ -12,9 +12,9 @@
 
     public static class StoryPointExtensions
     {
-        public static StoryPoint StoryPoints(this int number)
+        public static StoryPoint StoryPoints (this int number)
         {
-            return new StoryPoint(number);
+            return new StoryPoint (number);
         }
     }
 }

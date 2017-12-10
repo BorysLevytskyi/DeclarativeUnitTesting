@@ -10,7 +10,7 @@ namespace AgileApp.Tests.Builders
 
         public SprintBuilder UserStory (Action<UserStoryBuilder> buildStory)
         {
-            var userStory = Given.UserStory(buildStory);
+            var userStory = Given.UserStory (buildStory);
             _userStories.Add (userStory);
             return this;
         }

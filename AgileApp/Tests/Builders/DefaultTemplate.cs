@@ -11,7 +11,8 @@ namespace AgileApp.Tests.Builders
         }
         public static void UserStory (UserStoryBuilder userStory)
         {
-            userStory.Id (Identity.Next ()) // Generarte unique int id
+            var id = Identity.Next ();
+            userStory.Id (id) // Generarte unique int id
                 .Unassigned ()
                 .Unestimated ()
                 .Title ($"Generic story #{id}");

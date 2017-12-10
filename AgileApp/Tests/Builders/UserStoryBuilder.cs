@@ -1,7 +1,7 @@
 using Domain;
 using Domain.Entities;
 
-namespace Tests.Builders
+namespace AgileApp.Tests.Builders
 {
     public class UserStoryBuilder
     {

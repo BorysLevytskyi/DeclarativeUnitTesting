@@ -1,13 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace AgileApp.Domain.Entities
 {
     public class User
     {
-        public User()
-        {
-        }
+        public User ()
+        { }
 
         public int Id { get; set; }
 
@@ -15,8 +14,8 @@ namespace AgileApp.Domain.Entities
 
         public string Email { get; set; }
 
-        public ICollection<RoleType> Roles { get; set; } = new Collection<RoleType>();
+        public ICollection<RoleType> Roles { get; set; } = new Collection<RoleType> ();
 
-        public ICollection<int> AllowedSprintIds {get;set;} = new Collection<int>();
+        public ICollection<int> AllowedSprintIds { get; set; } = new Collection<int> ();
     }
 }

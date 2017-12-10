@@ -1,4 +1,4 @@
-namespace Tests.Builders
+namespace AgileApp.Tests.Builders
 {
     public static class Identity
     {

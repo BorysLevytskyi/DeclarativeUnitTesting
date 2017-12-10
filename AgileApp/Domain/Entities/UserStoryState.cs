@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities
+namespace AgileApp.Domain.Entities
 {
     public enum UserStoryState
     {

@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using Domain.Exceptions;
 
-namespace Domain.Entities
+namespace AgileApp.Domain.Entities
 {
     public class UserStory
     {
         private readonly UserStoryData _data;
 
-        public UserStory(int id, string title)
+        public UserStory (int id, string title)
         {
             _data = new UserStoryData
             {
@@ -19,7 +19,7 @@ namespace Domain.Entities
             };
         }
 
-        private UserStory(UserStoryData data)
+        private UserStory (UserStoryData data)
         {
             _data = data;
         }
@@ -36,71 +36,70 @@ namespace Domain.Entities
 
         public UserStoryState State => _data.State;
 
-        public static UserStory Reconstitute(UserStoryData data)
+        public static UserStory Reconstitute (UserStoryData data)
         {
-            return new UserStory(data);
+            return new UserStory (data);
         }
 
-        public void SetEstimate(StoryPoint estimate)
+        public void SetEstimate (StoryPoint estimate)
         {
             _data.Estimate = estimate;
         }
 
-        public void Assign(Assignee assignee)
+        public void Assign (Assignee assignee)
         {
             _data.Assignee = assignee;
         }
 
-        public void Schedule(int sprintId)
+        public void Schedule (int sprintId)
         {
             if (!Estimate.HasValue)
             {
-                throw new UserStoryNotEstimatedException();
+                throw new UserStoryNotEstimatedException ();
             }
 
-            TransitionTo(UserStoryState.Scheduled);
+            TransitionTo (UserStoryState.Scheduled);
             _data.SprintId = sprintId;
         }
 
-        public void Start()
-        {}
+        public void Start () { }
 
-        public void Complete()
+        public void Complete ()
         {
 
         }
 
-        public void Accept()
+        public void Accept ()
         {
 
         }
 
-        public void Reject()
+        public void Reject ()
         {
 
         }
 
-        public string ToShortString()
+        public string ToShortString ()
         {
             return $"{Title} @{Assignee.Name}";
         }
 
-        public UserStoryData GetData()
+        public UserStoryData GetData ()
         {
             return _data;
         }
 
-        private void TransitionTo(UserStoryState nextState)
+        private void TransitionTo (UserStoryState nextState)
         {
-            if (!GetAllowedStateTransitions(State).Contains(nextState))
+            if (!GetAllowedStateTransitions (State).Contains (nextState))
             {
-                throw new InvalidUserStoryStateException(State, nextState);
+                throw new InvalidUserStoryStateException (State, nextState);
             }
 
             _data.State = nextState;
         }
 
-        private static IEnumerable<UserStoryState> GetAllowedStateTransitions(UserStoryState currentState)
+        private static IEnumerable<UserStoryState> GetAllowedStateTransitions (UserStoryState currentState)
         {
             switch (currentState)
             {
