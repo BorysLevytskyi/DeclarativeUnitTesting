@@ -1,102 +1,80 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
-using Domain.Exceptions;
+using AgileApp.Domain.Exceptions;
 
 namespace AgileApp.Domain.Entities
 {
     public class UserStory
     {
-        private readonly UserStoryData _data;
-
         public UserStory (int id, string title)
         {
-            _data = new UserStoryData
-            {
-                Id = id,
-                Title = title,
-                State = UserStoryState.InBacklog
-            };
+            Id = id;
+            Title = title;
+            State = UserStoryState.InBacklog;
         }
 
-        private UserStory (UserStoryData data)
+        public UserStory()
         {
-            _data = data;
         }
 
-        public int Id => _data.Id;
+        public int Id { get; set; }
 
-        public int? SprintId => _data.SprintId;
+        public int? SprintId { get; set; }
 
-        public StoryPoint? Estimate => _data.Estimate;
+        public StoryPoint? Estimate { get; set; }
 
-        public string Title => _data.Title;
+        public string Title { get; set; }
 
-        public Assignee Assignee => _data.Assignee;
+        public Assignee Assignee { get; set; }
 
-        public UserStoryState State => _data.State;
-
-        public static UserStory Reconstitute (UserStoryData data)
-        {
-            return new UserStory (data);
-        }
-
-        public void SetEstimate (StoryPoint estimate)
-        {
-            _data.Estimate = estimate;
-        }
+        public UserStoryState State { get; set; }
 
         public void Assign (Assignee assignee)
         {
-            _data.Assignee = assignee;
+            Assignee = assignee;
         }
 
         public void Schedule (int sprintId)
         {
             if (!Estimate.HasValue)
             {
-                throw new UserStoryNotEstimatedException ();
+                throw new UserStoryNotEstimatedException();
             }
 
-            TransitionTo (UserStoryState.Scheduled);
-            _data.SprintId = sprintId;
+            TransitionTo(UserStoryState.Scheduled);
+            SprintId = sprintId;
         }
 
-        public void Start () { }
-
-        public void Complete ()
+        public void Start()
         {
-
         }
 
-        public void Accept ()
+        public void Complete()
         {
-
         }
 
-        public void Reject ()
+        public void Accept()
         {
-
         }
 
-        public string ToShortString ()
+        public void Reject()
+        {
+        }
+
+        public string ToShortString()
         {
             return $"{Title} @{Assignee.Name}";
         }
 
-        public UserStoryData GetData ()
-        {
-            return _data;
-        }
-
-        private void TransitionTo (UserStoryState nextState)
+        private void TransitionTo(UserStoryState nextState)
         {
             if (!GetAllowedStateTransitions (State).Contains (nextState))
             {
                 throw new InvalidUserStoryStateException (State, nextState);
             }
 
-            _data.State = nextState;
+            State = nextState;
         }
 
         private static IEnumerable<UserStoryState> GetAllowedStateTransitions (UserStoryState currentState)
@@ -126,20 +104,5 @@ namespace AgileApp.Domain.Entities
                     yield break;
             }
         }
-    }
-
-    public class UserStoryData
-    {
-        public Assignee Assignee { get; set; }
-
-        public UserStoryState State { get; set; }
-
-        public StoryPoint? Estimate { get; set; }
-
-        public string Title { get; set; }
-
-        public int Id { get; set; }
-
-        public int? SprintId { get; set; }
     }
 }

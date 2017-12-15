@@ -1,21 +1,36 @@
+using System;
+using AgileApp.Domain;
+using AgileApp.Domain.Entities;
+
 namespace AgileApp.Tests.Builders
 {
-    public class DefaultTemplate
+    public static class DefaultTemplate
     {
-        public static void User (UserBuilder user)
+        public static void User(UserBuilder user)
         {
-            user.Named ("John Smith")
-                .Email ("jon.smith@corp.com")
-                .Active ()
-                .HasARoleOf (RoleType.SysAdmin);
+            user.Named("John Smith")
+                .Email("jon.smith@corp.com")
+                .Active()
+                .HasARoleOf(RoleType.Developer);
         }
-        public static void UserStory (UserStoryBuilder userStory)
+
+        public static void Sprint(SprintBuilder sprint)
+        {
+            sprint.Starts(DateTime.Today).Ends(DateTime.Today.AddDays(14));
+        }
+       
+        public static void UserStory(UserStoryBuilder userStory)
         {
             var id = Identity.Next ();
-            userStory.Id (id) // Generarte unique int id
-                .Unassigned ()
-                .Unestimated ()
-                .Title ($"Generic story #{id}");
+            userStory.Id(id) // Generarte unique int id
+                .Unassigned()
+                .Unestimated()
+                .Title($"Generic story #{id}");
+        }
+
+        public static void Assignee(AssigneeBuilder assignee)
+        {
+            assignee.Named("John Smith").WithEmail("jothn.smipth@dummycorp.com");
         }
     }
 }

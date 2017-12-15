@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using AgileApp.Domain.Entities;
 
 namespace AgileApp.Tests.Builders
@@ -7,7 +8,14 @@ namespace AgileApp.Tests.Builders
     public class SprintBuilder
     {
         private readonly List<UserStory> _userStories = new List<UserStory> ();
+        
+        private Sprint _sprint;
 
+        public SprintBuilder()
+        {
+            _sprint = new Sprint();    
+        }
+        
         public SprintBuilder UserStory (Action<UserStoryBuilder> buildStory)
         {
             var userStory = Given.UserStory (buildStory);
@@ -18,6 +26,18 @@ namespace AgileApp.Tests.Builders
         public Sprint Build ()
         {
             return new Sprint (Identity.Next (), _userStories, DateTime.Now, DateTime.Now);
+        }
+
+        public SprintBuilder Starts(DateTime startDate)
+        {
+            _sprint.StartDate = startDate;
+            return this;
+        }
+
+        public SprintBuilder Ends(DateTime endDate)
+        {
+            _sprint.EndDate = endDate;
+            return this;
         }
     }
 }

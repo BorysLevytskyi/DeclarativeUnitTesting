@@ -1,23 +1,32 @@
+using AgileApp.Domain.Entities;
+
 namespace AgileApp.Tests.Builders
 {
     public class AssigneeBuilder
     {
-        private string _name;
-        private string _email;
-        private int _id;
 
-        public AssigneeBuilder ()
-        { }
+        private Assignee _assignee;
 
-        public AssigneeBuilder Named (string name)
+        public AssigneeBuilder()
         {
-            _name = name;
+            _assignee = new Assignee {UserId = Identity.Next()};
+        }
+
+        public AssigneeBuilder Named(string name)
+        {
+            _assignee.Name = name;
             return this;
         }
 
-        public AssigneeBuilder WithEmail (string email)
+        public AssigneeBuilder WithEmail(string email)
         {
+            _assignee.Email = email;
+            return this;
+        }
 
+        public Assignee Build()
+        {
+            return _assignee;
         }
     }
 }

@@ -1,3 +1,6 @@
+using AgileApp.Domain.Entities;
+using AgileApp.Tests.Builders;
+using FluentAssertions;
 using Xunit;
 
 namespace AgileApp.Tests
@@ -24,25 +27,21 @@ namespace AgileApp.Tests
         [Fact]
         public void Should_get_total_estimate_and_per_assignee ()
         {
-            var bob = Given.Assignee (a => a.Named ("Bob"));
-            var jack = Given.Assignee (a => a.Named ("Jack"));
+            var bob = Given.Assignee(a => a.Named("Bob"));
+            var jack = Given.Assignee(a => a.Named("Jack"));
 
             var sprint = Given.Sprint (s =>
-                s.UserStory (
-                    us => us.Estimated (2. StoryPoints ()).AssignedTo (bob))
-                .UserStory (
-                    us => us.Estimated (3. StoryPoints ()).AssignedTo (bob))
-                .UserStory (
-                    us => us.Unestimated ().AssignedTo (jack))
-                .UserStory (
-                    us => us.Estimated (5. StoryPoints ())
-                    .AssignedTo (jack)));
+                s.UserStory(us => us.Estimated(2).AssignedTo(bob))
+                 .UserStory(us => us.Estimated(3).AssignedTo(bob))
+                 .UserStory(us => us.Unestimated().AssignedTo(jack))
+                 .UserStory(us => us.Estimated(5).AssignedTo (jack)));
 
-            sprint.TotalEstimate.Should ().Be (10. StoryPoints ());
+            sprint.CalculateTotalEstimate().Should().Be(10.StoryPoints());
 
-            sprint.GetTotalEstimateFor (bob.Id).Should ().Be (5. StoryPoints ());
-            sprint.GetTotalEstimateFor (jack.Id)
-                .Should ().Be (5. StoryPoints ());
+            sprint.CalculateTotalEstimateFor(bob.UserId).Should().Be(5.StoryPoints());
+            
+            sprint.CalculateTotalEstimateFor(jack.UserId)
+                .Should().Be(5.StoryPoints());
         }
     }
 }

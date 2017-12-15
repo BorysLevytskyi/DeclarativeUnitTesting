@@ -6,6 +6,10 @@ namespace AgileApp.Domain.Entities
 {
     public class Sprint
     {
+        public Sprint()
+        {
+        }
+        
         public Sprint (int id, IEnumerable<UserStory> userStories, DateTime startDate, DateTime endDate)
         {
             Id = id;
@@ -14,15 +18,18 @@ namespace AgileApp.Domain.Entities
             EndDate = endDate;
         }
 
-        public DateTime StartDate { get; }
+        public DateTime StartDate { get; set; }
 
-        public DateTime EndDate { get; }
+        public DateTime EndDate { get; set; }
 
-        public IReadOnlyList<UserStory> UserStories { get; }
+        public ICollection<UserStory> UserStories { get; set; } = new List<UserStory>();
 
-        public StoryPoint TotalEstimate => new StoryPoint (UserStories.Where (us => us.Estimate.HasValue).Sum (us => us.Estimate.Value.Value));
+        public int Id { get; set; }
 
-        public int Id { get; private set; }
+        public StoryPoint CalculateTotalEstimate()
+        {
+            return new StoryPoint(UserStories.Where(us => us.Estimate.HasValue).Sum(us => us.Estimate.Value.Value));
+        }
 
         public void Start ()
         {
@@ -34,7 +41,11 @@ namespace AgileApp.Domain.Entities
 
         public void Complete ()
         {
+        }
 
+        public StoryPoint CalculateTotalEstimateFor(int userId)
+        {
+            throw new NotImplementedException();
         }
     }
 

@@ -1,6 +1,9 @@
+using AgileApp.Domain.Events;
+using FluentAssertions;
+using Xunit;
+
 namespace AgileApp.Tests
 {
-    [TestFixture]
     public class SprintServiceTest : SprintServiceSpec
     {
         [Fact]
@@ -10,16 +13,16 @@ namespace AgileApp.Tests
                 .User (u => u.Named ("John Smith"))
                 .ExistingSprint ();
 
-            var sut = CreateSut ();
-            sut.StartSprint (Fixture.Sprint.Id, Fixture.User.Id);
+            var sut = CreateSut();
+            sut.StartSprint(Fixture.Sprint.Id, Fixture.User.Id);
 
-            Fixture.PublishedEvents.Should ()
-                .ContainSingle ()
+            Fixture.PublishedEvents.Should()
+                .ContainSingle()
                 .Which.ShouldBeEquivalentTo (new SprintStartedEvent
                 {
                     SprintId = Fixture.Sprint.Id,
-                        StartedByUserId = Fixture.User.Id,
-                        StartedByUserName = "John Smith"
+                    StartedByUserId = Fixture.User.Id,
+                    StartedByUserName = "John Smith"
                 });
         }
     }

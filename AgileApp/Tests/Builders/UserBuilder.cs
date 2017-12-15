@@ -1,4 +1,4 @@
-using System;
+using AgileApp.Domain;
 using AgileApp.Domain.Entities;
 
 namespace AgileApp.Tests.Builders
@@ -7,9 +7,9 @@ namespace AgileApp.Tests.Builders
     {
         private readonly User _user;
 
-        public UserBuilder (User user)
+        public UserBuilder()
         {
-            _user = user;
+            _user = new User();
         }
 
         public UserBuilder Email (string email)
@@ -24,10 +24,24 @@ namespace AgileApp.Tests.Builders
             return this;
         }
 
-        public UserBuilder HasAccessTo (Sprint sprint)
+        public UserBuilder HasAccessTo(Sprint sprint)
         {
             _user.AllowedSprintIds.Add (sprint.Id);
             return this;
         }
+
+        public UserBuilder Active()
+        {
+            _user.IsActive = true;
+            return this;
+        }
+
+        public UserBuilder HasARoleOf(RoleType role)
+        {
+            _user.Roles.Add(role);
+            return this;
+        }
+
+        public User Build() => _user;
     }
 }

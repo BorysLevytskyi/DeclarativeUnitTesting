@@ -1,3 +1,7 @@
+using AgileApp.Domain.ApplicationServices;
+using AgileApp.Domain.Repositories;
+using Moq;
+
 namespace AgileApp.Tests
 {
     public class SprintServiceSpec
@@ -6,26 +10,31 @@ namespace AgileApp.Tests
         private Mock<IUserRepository> UserRepoMock { get; } = new Mock<IUserRepository> ();
         private Mock<ISprintRepository> SprintRepoMock { get; } = new Mock<ISprintRepository> ();
         private Mock<IEventPublisher> EventPublisherMock { get; } = new Mock<IEventPublisher> ();
+        
         public SprintServiceFixture.Builder Given ()
         {
             return new SprintServiceFixture.Builder (Fixture);
         }
+        
         private void SetupFixture ()
         {
-            UserRepoMock.Setup (mx => mx.GetById (Fixture.User.Id))
+            UserRepoMock.Setup (mx => mx.GetById(Fixture.User.Id))
                 .Returns (Fixture.User);
-            SprintRepoMock.Setup (mx => mx.GetById (Fixture.Sprint.Id))
-                .Returns (Fixture.Sprint);
+            
+            SprintRepoMock.Setup (mx => mx.GetById(Fixture.Sprint.Id))
+                .Returns(Fixture.Sprint);
+            
             EventPublisherMock.Setup (mx =>
-                    mx.Publish (It.IsAny<object> ()))
-                .Callback < object (
-                    Fixture.PublishedEvents.Add);
+                    mx.Publish(It.IsAny<object>())).Callback<object>(Fixture.PublishedEvents.Add);
         }
+        
         protected SprintService CreateSut ()
         {
-            return new SprintService (
+            SetupFixture();
+            
+            return new SprintService(
                 SprintRepoMock.Object,
-                serRepoMock.Object,
+                UserRepoMock.Object,
                 EventPublisherMock.Object);
         }
     }

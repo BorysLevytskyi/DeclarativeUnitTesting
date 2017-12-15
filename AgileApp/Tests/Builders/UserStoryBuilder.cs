@@ -1,21 +1,20 @@
-using Domain;
-using Domain.Entities;
+using AgileApp.Domain.Entities;
 
 namespace AgileApp.Tests.Builders
 {
     public class UserStoryBuilder
     {
-        private readonly UserStoryData _storyData = new UserStoryData ();
+        private readonly UserStory _story = new UserStory();
 
         public UserStoryBuilder NotStarted ()
         {
-            _storyData.State = UserStoryState.InBacklog;
+            _story.State = UserStoryState.InBacklog;
             return this;
         }
 
         public UserStoryBuilder AssignedTo (Assignee assignee)
         {
-            _storyData.Assignee = assignee;
+            _story.Assignee = assignee;
             return this;
         }
 
@@ -26,40 +25,52 @@ namespace AgileApp.Tests.Builders
 
         public UserStoryBuilder Unassigned ()
         {
-            _storyData.Assignee = null;
+            _story.Assignee = null;
             return this;
         }
 
         public UserStory Build ()
         {
-            return UserStory.Reconstitute (_storyData);
+            return _story;
         }
 
-        public UserStoryBuilder Estimated (StoryPoint storyPoints)
+        public UserStoryBuilder Estimated (int storyPoints)
         {
-            _storyData.Estimate = storyPoints;
+            _story.Estimate = new StoryPoint(storyPoints);
             return this;
         }
 
-        public UserStoryBuilder Estimated ()
+        public UserStoryBuilder Estimated()
         {
-            return Estimated (2. StoryPoints ());
+            return Estimated(2);
         }
 
         public UserStoryBuilder Unestimated ()
         {
-            _storyData.Estimate = null;
+            _story.Estimate = null;
             return this;
         }
 
-        public UserStoryBuilder Assigned ()
+        public UserStoryBuilder Assigned()
         {
-            return AssignedTo ("Bob");
+            return AssignedTo("Bob");
         }
 
         public UserStoryBuilder InBacklog ()
         {
-            _storyData.State = UserStoryState.InBacklog;
+            _story.State = UserStoryState.InBacklog;
+            return this;
+        }
+
+        public UserStoryBuilder Id(int id)
+        {
+            _story.Id = id;
+            return this;
+        }
+
+        public UserStoryBuilder Title(string title)
+        {
+            _story.Title = title;
             return this;
         }
     }
