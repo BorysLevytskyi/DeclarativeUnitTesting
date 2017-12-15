@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using AgileApp.Domain.Entities;
+using AgileApp.Application.Entities;
 
 namespace AgileApp.Tests.Builders
 {
@@ -14,6 +14,11 @@ namespace AgileApp.Tests.Builders
         public SprintBuilder()
         {
             _sprint = new Sprint();    
+        }
+        
+        public SprintBuilder UserStory(string title)
+        {
+            return UserStory(u => u.Title(title));
         }
         
         public SprintBuilder UserStory (Action<UserStoryBuilder> buildStory)

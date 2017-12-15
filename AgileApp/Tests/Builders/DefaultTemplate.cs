@@ -1,6 +1,5 @@
 using System;
-using AgileApp.Domain;
-using AgileApp.Domain.Entities;
+using AgileApp.Application.Entities;
 
 namespace AgileApp.Tests.Builders
 {

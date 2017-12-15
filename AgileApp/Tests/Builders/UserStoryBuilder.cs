@@ -1,4 +1,4 @@
-using AgileApp.Domain.Entities;
+using AgileApp.Application.Entities;
 
 namespace AgileApp.Tests.Builders
 {
@@ -34,11 +34,23 @@ namespace AgileApp.Tests.Builders
             return _story;
         }
 
-        public UserStoryBuilder Estimated (int storyPoints)
+        public UserStoryBuilder Estimated(int storyPoints)
         {
-            _story.Estimate = new StoryPoint(storyPoints);
+            _story.Estimate = storyPoints;
             return this;
         }
+
+        public UserStoryBuilder InState(UserStoryState state)
+        {
+            _story.State = state;
+            return this;
+        }
+
+        public UserStoryBuilder Accepted()
+        {
+            return InState(UserStoryState.Accepted);
+        }
+        
 
         public UserStoryBuilder Estimated()
         {
